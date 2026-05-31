@@ -18,7 +18,14 @@ import {
   CreditCard,
   X,
   Trash2,
-  AlertCircle
+  AlertCircle,
+  Search,
+  Settings,
+  User,
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Menu
 } from 'lucide-react';
 
 interface Categoria {
@@ -48,13 +55,25 @@ export default function Dashboard() {
   const [transactions, setTransactions] = useState<Transaccion[]>([]);
   const [categories, setCategories] = useState<Categoria[]>([]);
   const [showModal, setShowModal] = useState(false);
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  // Form State
+  // Sidebar Toggles
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    return localStorage.getItem('fa_sidebar_collapsed') === 'true';
+  });
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  // Form States
   const [formMonto, setFormMonto] = useState('');
   const [formDescripcion, setFormDescripcion] = useState('');
   const [formCategoriaId, setFormCategoriaId] = useState('');
   const [formMetodoPago, setFormMetodoPago] = useState<'Nequi' | 'Tarjeta Crédito' | 'Tarjeta Débito' | 'Efectivo'>('Nequi');
   const [formTipo, setFormTipo] = useState<'Ingreso' | 'Gasto'>('Gasto');
+
+  // Custom User Profile Name State
+  const [customName, setCustomName] = useState('');
+  const [tempName, setTempName] = useState('');
 
   // References
   const montoInputRef = useRef<HTMLInputElement>(null);
@@ -108,6 +127,16 @@ export default function Dashboard() {
       fecha_transaccion: new Date(Date.now() - 86400000 * 5).toISOString(),
       categoria: { nombre: 'Entretenimiento' },
     },
+    {
+      id: 105,
+      categoria_id: 1,
+      monto: 180000,
+      descripcion: 'Mercado de semana',
+      metodo_pago: 'Tarjeta Débito',
+      tipo: 'Gasto',
+      fecha_transaccion: new Date(Date.now() - 86400000 * 6).toISOString(),
+      categoria: { nombre: 'Comida' },
+    },
   ];
 
   useEffect(() => {
@@ -120,10 +149,11 @@ export default function Dashboard() {
       import.meta.env.VITE_SUPABASE_ANON_KEY;
 
     if (!isSupabaseConfigured) {
-      // No credentials -> Offline Demo Mode
       setUsingFallback(true);
-      setUser({ email: 'demo@finanzasapp.com', id: 'demo-user-id' });
+      const demoUser = { email: 'jenny.mo@finanzasapp.com', id: 'demo-user-id' };
+      setUser(demoUser);
       loadLocalData();
+      initializeDisplayName(demoUser.email);
       return;
     }
 
@@ -134,16 +164,43 @@ export default function Dashboard() {
         return;
       }
       setUser(user);
+      initializeDisplayName(user.email);
       await loadDbData(user.id);
     } catch (err) {
       console.error('Error connecting to Supabase. Falling back to local.', err);
       setUsingFallback(true);
-      setUser({ email: 'offline@finanzasapp.com', id: 'local-user-id' });
+      const offlineUser = { email: 'usuario.local@finanzasapp.com', id: 'local-user-id' };
+      setUser(offlineUser);
+      initializeDisplayName(offlineUser.email);
       loadLocalData();
     }
   };
 
-  // Load from LocalStorage
+  const initializeDisplayName = (email: string) => {
+    const cached = localStorage.getItem('fa_custom_name');
+    if (cached) {
+      setCustomName(cached);
+      setTempName(cached);
+    } else {
+      const parsed = email
+        .split('@')[0]
+        .split(/[._-]/)
+        .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(' ');
+      setCustomName(parsed);
+      setTempName(parsed);
+      localStorage.setItem('fa_custom_name', parsed);
+    }
+  };
+
+  const saveDisplayName = () => {
+    if (tempName.trim()) {
+      setCustomName(tempName);
+      localStorage.setItem('fa_custom_name', tempName);
+      setShowSettingsModal(false);
+    }
+  };
+
   const loadLocalData = () => {
     const cachedCats = localStorage.getItem('fa_categories');
     const cachedTrans = localStorage.getItem('fa_transactions');
@@ -164,11 +221,9 @@ export default function Dashboard() {
     setLoading(false);
   };
 
-  // Load from Supabase DB
   const loadDbData = async (userId: string) => {
     setLoading(true);
     try {
-      // 1. Fetch categories
       let { data: cats, error: catError } = await supabase
         .from('categorias_presupuesto')
         .select('*')
@@ -177,7 +232,6 @@ export default function Dashboard() {
 
       if (catError) throw catError;
 
-      // If user has no categories, insert default ones (failsafe in case trigger didn't fire)
       if (!cats || cats.length === 0) {
         const defaults = defaultCategories.map(c => ({
           usuario_id: userId,
@@ -194,7 +248,6 @@ export default function Dashboard() {
 
       setCategories(cats);
 
-      // 2. Fetch transactions
       const { data: trans, error: transError } = await supabase
         .from('transacciones')
         .select(`
@@ -212,7 +265,6 @@ export default function Dashboard() {
 
       if (transError) throw transError;
 
-      // Map Supabase layout to match our React Interface
       const mappedTrans: Transaccion[] = (trans || []).map((t: any) => ({
         id: t.id,
         categoria_id: t.categoria_id,
@@ -227,7 +279,6 @@ export default function Dashboard() {
       setTransactions(mappedTrans);
     } catch (err) {
       console.error('Failed to load DB resources:', err);
-      // Fallback
       setUsingFallback(true);
       loadLocalData();
     } finally {
@@ -242,7 +293,13 @@ export default function Dashboard() {
     navigate('/login');
   };
 
-  // Add Transaction
+  const toggleSidebar = () => {
+    setSidebarCollapsed(prev => {
+      localStorage.setItem('fa_sidebar_collapsed', String(!prev));
+      return !prev;
+    });
+  };
+
   const handleAddTransaction = async (e: React.FormEvent) => {
     e.preventDefault();
     const monto = parseFloat(formMonto);
@@ -293,7 +350,6 @@ export default function Dashboard() {
     }
   };
 
-  // Delete Transaction
   const handleDeleteTransaction = async (id: number) => {
     if (!confirm('¿Estás seguro de eliminar esta transacción?')) return;
     setLoading(true);
@@ -325,7 +381,6 @@ export default function Dashboard() {
     setShowModal(false);
   };
 
-  // Open Modal and Focus input
   const openExpenseModal = () => {
     setFormTipo('Gasto');
     setFormCategoriaId(categories[0]?.id.toString() || '');
@@ -344,38 +399,24 @@ export default function Dashboard() {
     .filter(t => t.tipo === 'Gasto')
     .reduce((sum, t) => sum + t.monto, 0);
 
-  const cajaReal = totalIngresos - totalGastos;
+  const balanceNeto = totalIngresos - totalGastos;
 
-  // Weekly Gastos Calculation (Last 7 days)
-  const millisecondsInWeek = 7 * 24 * 60 * 60 * 1000;
-  const totalGastosSemana = transactions
-    .filter(t => t.tipo === 'Gasto' && (Date.now() - new Date(t.fecha_transaccion).getTime() <= millisecondsInWeek))
-    .reduce((sum, t) => sum + t.monto, 0);
-
-  // Category usage summary
   const getCategorySpend = (catId: number) => {
     return transactions
       .filter(t => t.tipo === 'Gasto' && t.categoria_id === catId)
       .reduce((sum, t) => sum + t.monto, 0);
   };
 
-  // Category Icon Resolver
-  const getCategoryIcon = (nombre: string) => {
+  const getCategoryColor = (nombre: string) => {
     switch (nombre.toLowerCase()) {
-      case 'comida':
-        return <Utensils className="w-4 h-4" />;
-      case 'transporte':
-        return <Car className="w-4 h-4" />;
-      case 'entretenimiento':
-        return <Tv className="w-4 h-4" />;
-      case 'servicios':
-        return <FileText className="w-4 h-4" />;
-      default:
-        return <HelpCircle className="w-4 h-4" />;
+      case 'comida': return '#5f60eb';
+      case 'transporte': return '#06b6d4';
+      case 'entretenimiento': return '#ec4899';
+      case 'servicios': return '#ff9f43';
+      default: return '#10b981';
     }
   };
 
-  // Format currency COP
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('es-CO', {
       style: 'currency',
@@ -384,285 +425,584 @@ export default function Dashboard() {
     }).format(val);
   };
 
-  return (
-    <div className="min-h-svh bg-[#090b11] text-gray-100 flex flex-col relative overflow-hidden pb-12">
-      {/* Background Glows */}
-      <div className="absolute top-0 right-1/4 w-96 h-96 rounded-full bg-brand-primary/5 blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 left-10 w-80 h-80 rounded-full bg-brand-accent/5 blur-[100px] pointer-events-none"></div>
+  // Filter transactions by search query
+  const filteredTx = transactions.filter(t => 
+    t.descripcion.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    t.monto.toString().includes(searchQuery) ||
+    (t.categoria?.nombre && t.categoria.nombre.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
-      {/* Top Navbar */}
-      <header className="glass sticky top-0 z-40 border-b border-white/5 py-4 px-6 md:px-12 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-brand-primary/20 border border-brand-primary/30 flex items-center justify-center rounded-xl">
-            <Coins className="w-5 h-5 text-brand-primary" />
+  // Time-based greeting helper
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Buenos días';
+    if (hour < 18) return 'Buenas tardes';
+    return 'Buenas noches';
+  };
+
+  // Note text dynamic calculation based on food spending
+  const comidaSpend = getCategorySpend(categories.find(c => c.nombre.toLowerCase() === 'comida')?.id || 0);
+  const diningOutNote = comidaSpend > 0 
+    ? `Gastaste ${formatCurrency(comidaSpend)} en comida este mes. ¡Intentemos reducirlo!`
+    : '¡Excelente! No tienes gastos excesivos registrados en comida hoy.';
+
+  // Donut chart calculations
+  const totalBudget = categories.reduce((sum, c) => sum + c.limite_mensual, 0);
+  const totalSpentInCategories = categories.reduce((sum, c) => sum + getCategorySpend(c.id), 0);
+  const budgetRatio = totalBudget > 0 ? Math.min((totalSpentInCategories / totalBudget) * 100, 100) : 0;
+
+  // Highest spending category
+  const sortedCategoriesBySpend = [...categories]
+    .map(c => ({ ...c, spend: getCategorySpend(c.id) }))
+    .sort((a, b) => b.spend - a.spend);
+  const highestSpendCat = sortedCategoriesBySpend[0];
+  const highestSpendRatio = totalSpentInCategories > 0 && highestSpendCat
+    ? ((highestSpendCat.spend / totalSpentInCategories) * 100).toFixed(0)
+    : '0';
+
+  // Sidebar Layout Helper (avoids duplication)
+  const renderSidebarContent = (isMobile: boolean, onClose?: () => void) => {
+    const collapsed = isMobile ? false : sidebarCollapsed;
+    
+    return (
+      <div className="h-full flex flex-col justify-between">
+        <div>
+          {/* Profile Header */}
+          <div className={`p-6 border-b border-slate-50 flex flex-col items-center text-center relative ${collapsed ? 'py-8' : 'py-8'}`}>
+            
+            {/* Collapse sidebar button (Only desktop) */}
+            {!isMobile && (
+              <button 
+                onClick={toggleSidebar}
+                title={collapsed ? "Expandir menú" : "Contraer menú"}
+                className="absolute -right-3 top-8 w-6 h-6 bg-white hover:bg-slate-50 border border-slate-200 rounded-full flex items-center justify-center text-slate-400 hover:text-brand-primary shadow-sm cursor-pointer z-40 transition"
+              >
+                {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
+              </button>
+            )}
+
+            {/* User Avatar */}
+            <div 
+              className="relative group cursor-pointer" 
+              onClick={() => {
+                setShowSettingsModal(true);
+                if (isMobile && onClose) onClose();
+              }}
+            >
+              <div className={`${collapsed ? 'w-10 h-10' : 'w-16 h-16'} rounded-full overflow-hidden border-2 border-brand-primary/20 p-0.5 bg-white hover:border-brand-primary transition-all duration-300`}>
+                <img 
+                  src="/user_avatar.png" 
+                  alt="Avatar de Usuario" 
+                  className="w-full h-full rounded-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150';
+                  }}
+                />
+              </div>
+              {!collapsed && (
+                <div className="absolute bottom-0 right-0 w-5 h-5 bg-brand-primary text-white rounded-full flex items-center justify-center border border-white shadow">
+                  <Settings className="w-3.5 h-3.5" />
+                </div>
+              )}
+            </div>
+
+            {/* Name / Greeting (Hide if collapsed) */}
+            {!collapsed && (
+              <div className="animate-fade-in">
+                <div 
+                  className="mt-4 flex items-center justify-center gap-1.5 cursor-pointer" 
+                  onClick={() => {
+                    setShowSettingsModal(true);
+                    if (isMobile && onClose) onClose();
+                  }}
+                >
+                  <span className="font-bold text-slate-800 text-lg hover:text-brand-primary transition truncate max-w-[150px] block">
+                    {customName}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                </div>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1 block">
+                  {getGreeting()}
+                </span>
+              </div>
+            )}
           </div>
-          <span className="font-extrabold text-xl tracking-tight text-white">
-            Finanzas<span className="text-gradient">App</span>
-          </span>
+
+          {/* Navigation Links */}
+          <nav className={`px-4 py-8 space-y-2 ${collapsed ? 'flex flex-col items-center' : ''}`}>
+            <button
+              onClick={() => {
+                navigate('/');
+                if (isMobile && onClose) onClose();
+              }}
+              title="Inicio"
+              className={`w-full flex items-center ${
+                collapsed 
+                  ? 'justify-center w-12 h-12 p-0' 
+                  : 'gap-3.5 px-5 py-3.5'
+              } rounded-2xl text-sm font-semibold transition cursor-pointer bg-brand-primary text-white shadow-lg shadow-brand-primary/10`}
+            >
+              <Wallet className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && <span>Inicio</span>}
+            </button>
+            
+            <button
+              onClick={() => {
+                navigate('/reportes');
+                if (isMobile && onClose) onClose();
+              }}
+              title="Estadísticas"
+              className={`w-full flex items-center ${
+                collapsed 
+                  ? 'justify-center w-12 h-12 p-0' 
+                  : 'gap-3.5 px-5 py-3.5'
+              } rounded-2xl text-sm font-semibold transition cursor-pointer text-slate-500 hover:bg-slate-50 hover:text-slate-800`}
+            >
+              <TrendingUp className="w-5 h-5 flex-shrink-0" />
+              {!collapsed && <span>Estadísticas</span>}
+            </button>
+          </nav>
         </div>
 
-        <div className="flex items-center gap-4">
+        {/* Bottom Actions: Settings & Logout */}
+        <div className={`p-4 border-t border-slate-50 space-y-1 bg-slate-50/50 flex flex-col ${collapsed ? 'items-center' : ''}`}>
           <button
-            onClick={() => navigate('/reportes')}
-            className="text-sm font-medium text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-4 py-2 rounded-xl hover:bg-brand-accent/20 transition cursor-pointer"
+            onClick={() => {
+              setShowSettingsModal(true);
+              if (isMobile && onClose) onClose();
+            }}
+            title="Configuración de Cuenta"
+            className={`w-full flex items-center ${
+              collapsed ? 'justify-center w-10 h-10 p-0' : 'gap-3 px-4 py-2.5'
+            } text-xs font-bold text-slate-600 hover:text-brand-primary hover:bg-white rounded-xl transition cursor-pointer`}
           >
-            Ver Reportes
+            <Settings className="w-4 h-4 flex-shrink-0" />
+            {!collapsed && <span>Configuración</span>}
           </button>
           
-          <div className="h-6 w-[1px] bg-white/10 hidden md:block"></div>
-          
-          <div className="hidden md:flex flex-col text-right">
-            <span className="text-xs text-gray-400">Usuario</span>
-            <span className="text-sm text-gray-200 truncate max-w-[150px]">{user?.email}</span>
-          </div>
-
           <button
             onClick={handleLogout}
             title="Cerrar Sesión"
-            className="p-2 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-xl border border-white/5 transition cursor-pointer"
+            className={`w-full flex items-center ${
+              collapsed ? 'justify-center w-10 h-10 p-0' : 'gap-3 px-4 py-2.5'
+            } text-xs font-bold text-red-500 hover:text-white hover:bg-red-500 rounded-xl transition cursor-pointer`}
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className="w-4 h-4 flex-shrink-0" />
+            {!collapsed && <span>Cerrar Sesión</span>}
           </button>
         </div>
-      </header>
+      </div>
+    );
+  };
 
-      {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 md:px-8 mt-6 space-y-8 z-10">
+  return (
+    <div className="min-h-screen bg-[#F4F6FA] text-slate-800 flex overflow-hidden relative">
+      
+      {/* 1. MOBILE OVERLAY BACKDROP */}
+      {mobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* 2. MOBILE DRAWER SIDEBAR */}
+      <aside className={`fixed inset-y-0 left-0 w-72 bg-white border-r border-slate-100 flex flex-col z-50 transform transition-transform duration-300 ease-in-out md:hidden ${
+        mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
+        {renderSidebarContent(true, () => setMobileSidebarOpen(false))}
+      </aside>
+
+      {/* 3. DESKTOP PERMANENT COLLAPSIBLE SIDEBAR */}
+      <aside className={`hidden md:flex flex-col flex-shrink-0 border-r border-slate-100 bg-white transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.015)] relative ${
+        sidebarCollapsed ? 'w-20' : 'w-72'
+      }`}>
+        {renderSidebarContent(false)}
+      </aside>
+
+      {/* MAIN CONTAINER */}
+      <main className="flex-1 overflow-y-auto flex flex-col relative min-w-0">
         
-        {/* Offline / Demo Warning Banner */}
+        {/* Offline Warning Banner */}
         {usingFallback && (
-          <div className="glass p-4 rounded-2xl flex items-center justify-between border-warning/20 bg-warning/5 text-warning-300 gap-3">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-warning/10 border border-warning/20 flex items-center justify-center flex-shrink-0">
-                <AlertCircle className="w-5 h-5 text-warning" />
-              </div>
-              <div>
-                <h4 className="font-semibold text-white text-sm">Modo de Demostración Local</h4>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Las variables de Supabase no están configuradas. Los datos se guardarán temporalmente en tu navegador.
-                </p>
-              </div>
-            </div>
+          <div className="bg-amber-50 border-b border-amber-200 text-amber-800 px-6 md:px-10 py-2.5 flex items-center justify-between text-xs font-medium z-20 flex-shrink-0">
+            <span className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600" />
+              Demostración local (LocalStorage) - No sincronizado
+            </span>
           </div>
         )}
 
-        {/* 1. Summary Cards Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* TOP BAR / HEADER */}
+        <header className="py-5 px-6 md:px-10 flex flex-col sm:flex-row gap-4 sm:items-center justify-between bg-white/40 backdrop-blur-md sticky top-0 z-20 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            {/* Hamburger Button for mobile */}
+            <button
+              onClick={() => setMobileSidebarOpen(true)}
+              title="Abrir menú"
+              className="md:hidden p-2 hover:bg-slate-100/80 active:bg-slate-100 rounded-xl border border-slate-200 text-slate-600 cursor-pointer shadow-sm"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="min-w-0">
+              <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight truncate">
+                Hola, {customName.split(' ')[0]}
+              </h1>
+              <p className="text-xs md:text-sm text-slate-400 font-medium mt-0.5 capitalize">
+                {getGreeting()}, que tengas un excelente día financiero
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {/* Search Input */}
+            <div className="relative flex-1 sm:w-64 md:w-80 sm:flex-initial">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+                <Search className="w-4 h-4" />
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Buscar transacción..."
+                className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-2xl focus:border-brand-primary focus:ring-1 focus:ring-brand-primary/10 focus:outline-none transition text-sm text-slate-700 placeholder-slate-400 shadow-sm"
+              />
+            </div>
+
+            {/* Quick Gasto button */}
+            <button
+              onClick={openExpenseModal}
+              className="flex items-center gap-1.5 px-4 py-2 bg-brand-primary text-white font-bold rounded-2xl hover:bg-brand-primary/95 transition duration-150 cursor-pointer text-xs md:text-sm shadow-md shadow-brand-primary/15 flex-shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="hidden xs:inline">Nuevo Registro</span>
+              <span className="xs:hidden">Nuevo</span>
+            </button>
+          </div>
+        </header>
+
+        {/* CONTENT AREA GRID */}
+        <div className="p-4 md:p-10 space-y-8 flex-1">
           
-          {/* Card: Ingresos Totales */}
-          <div className="glass p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-success/5 rounded-full blur-xl translate-x-4 -translate-y-4"></div>
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Ingresos Totales</span>
-              <span className="text-2xl font-bold text-white block">{formatCurrency(totalIngresos)}</span>
-            </div>
-            <div className="w-12 h-12 bg-success/10 border border-success/20 rounded-xl flex items-center justify-center text-success">
-              <TrendingUp className="w-6 h-6" />
-            </div>
-          </div>
+          {/* Main 3 columns layout: matches reference image grid structure but fully responsive */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            {/* COLUMN 1: Latest Transactions */}
+            <div className="card-premium rounded-[32px] p-6 md:p-8 flex flex-col h-[520px]">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-xl font-bold text-slate-800 tracking-tight">Últimos Movimientos</h2>
+                <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
+                  {filteredTx.length}
+                </span>
+              </div>
 
-          {/* Card: Gasto Mensual Acumulado */}
-          <div className="glass p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-danger/5 rounded-full blur-xl translate-x-4 -translate-y-4"></div>
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Gasto Mensual</span>
-              <span className="text-2xl font-bold text-white block">{formatCurrency(totalGastos)}</span>
-            </div>
-            <div className="w-12 h-12 bg-danger/10 border border-danger/20 rounded-xl flex items-center justify-center text-danger">
-              <TrendingDown className="w-6 h-6" />
-            </div>
-          </div>
-
-          {/* Card: Gasto Semanal Acumulado */}
-          <div className="glass p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-warning/5 rounded-full blur-xl translate-x-4 -translate-y-4"></div>
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider block">Gasto Semanal</span>
-              <span className="text-2xl font-bold text-white block">{formatCurrency(totalGastosSemana)}</span>
-            </div>
-            <div className="w-12 h-12 bg-warning/10 border border-warning/20 rounded-xl flex items-center justify-center text-warning">
-              <Calendar className="w-6 h-6" />
-            </div>
-          </div>
-
-          {/* Card: Caja Real (Restante) */}
-          <div className="glass p-6 rounded-2xl flex items-center justify-between relative overflow-hidden group border-brand-primary/20 glow">
-            <div className="absolute top-0 right-0 w-24 h-24 bg-brand-primary/10 rounded-full blur-xl translate-x-4 -translate-y-4"></div>
-            <div className="space-y-2">
-              <span className="text-xs font-semibold text-brand-accent uppercase tracking-wider block">Caja Real (Restante)</span>
-              <span className="text-2xl font-bold text-white block">{formatCurrency(cajaReal)}</span>
-            </div>
-            <div className="w-12 h-12 bg-brand-primary/20 border border-brand-primary/30 rounded-xl flex items-center justify-center text-brand-primary animate-pulse-slow">
-              <Wallet className="w-6 h-6" />
-            </div>
-          </div>
-
-        </section>
-
-        {/* 2. Budgets & Transactions Layout */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* LEFT/MID COLUMN: Budgets Progress & Semaphores (2/3 width) */}
-          <div className="glass p-6 rounded-3xl lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-brand-primary" />
-                Límites de Presupuesto Mensual
-              </h2>
-              <span className="text-xs text-gray-400">Consumo en base a gastos registrados</span>
-            </div>
-
-            <div className="space-y-5">
-              {categories.map(cat => {
-                const spend = getCategorySpend(cat.id);
-                const pct = cat.limite_mensual > 0 ? (spend / cat.limite_mensual) * 100 : 0;
-                
-                // Semaphore styling
-                let colorClass = 'bg-success';
-                let textClass = 'text-success';
-                if (pct >= 100) {
-                  colorClass = 'bg-danger';
-                  textClass = 'text-danger';
-                } else if (pct >= 70) {
-                  colorClass = 'bg-warning';
-                  textClass = 'text-warning';
-                }
-
-                return (
-                  <div key={cat.id} className="space-y-2 p-3 bg-white/2 rounded-2xl hover:bg-white/5 transition border border-white/2">
-                    <div className="flex justify-between items-center text-sm">
-                      <div className="flex items-center gap-2.5">
-                        <div className={`p-2 rounded-xl ${colorClass}/10 ${textClass}`}>
-                          {getCategoryIcon(cat.nombre)}
+              {/* Transactions List */}
+              <div className="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-thin">
+                {filteredTx.length === 0 ? (
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400">
+                    <Coins className="w-12 h-12 stroke-[1.2] mb-3 text-slate-300 animate-bounce" />
+                    <span className="text-sm font-semibold text-slate-500">Sin movimientos</span>
+                    <span className="text-xs text-slate-400 mt-1">Registra un ingreso o gasto</span>
+                  </div>
+                ) : (
+                  filteredTx.map(tx => (
+                    <div
+                      key={tx.id}
+                      className="p-3.5 bg-slate-50/50 hover:bg-slate-50 rounded-2xl border border-slate-100/50 flex justify-between items-center group transition duration-200"
+                    >
+                      <div className="space-y-1 flex-1 min-w-0 pr-2">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-bold text-slate-800 text-sm truncate max-w-[120px] block">{tx.descripcion}</span>
+                          {tx.categoria && (
+                            <span 
+                              className="px-2 py-0.5 rounded-md text-[9px] font-bold uppercase border flex-shrink-0"
+                              style={{ 
+                                color: getCategoryColor(tx.categoria.nombre),
+                                backgroundColor: `${getCategoryColor(tx.categoria.nombre)}10`,
+                                borderColor: `${getCategoryColor(tx.categoria.nombre)}20`
+                              }}
+                            >
+                              {tx.categoria.nombre}
+                            </span>
+                          )}
                         </div>
-                        <span className="font-semibold text-gray-200">{cat.nombre}</span>
+                        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold">
+                          <span>{tx.metodo_pago}</span>
+                          <span>•</span>
+                          <span>{new Date(tx.fecha_transaccion).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}</span>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <span className="font-bold text-white">{formatCurrency(spend)}</span>
-                        <span className="text-gray-500 text-xs font-medium"> / {formatCurrency(cat.limite_mensual)}</span>
-                      </div>
-                    </div>
 
-                    {/* Progress Bar container */}
-                    <div className="w-full bg-white/5 h-3.5 rounded-full overflow-hidden p-[2px] border border-white/5">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${colorClass}`}
-                        style={{ width: `${Math.min(pct, 100)}%` }}
-                      ></div>
-                    </div>
-
-                    <div className="flex justify-between items-center text-xs">
-                      <span className="text-gray-400">Consumido</span>
-                      <span className={`font-bold ${textClass}`}>{pct.toFixed(0)}%</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* RIGHT COLUMN: Recent Transactions (1/3 width) */}
-          <div className="glass p-6 rounded-3xl flex flex-col space-y-6 max-h-[500px]">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-brand-secondary" />
-              Movimientos Recientes
-            </h2>
-
-            <div className="flex-1 overflow-y-auto space-y-3 pr-2 scrollbar-thin">
-              {transactions.length === 0 ? (
-                <div className="h-full flex flex-col items-center justify-center text-center p-6 text-gray-500">
-                  <Coins className="w-12 h-12 stroke-[1.5] mb-2 text-gray-600" />
-                  <span className="text-sm font-medium">No hay transacciones</span>
-                  <span className="text-xs text-gray-600">Registra un gasto flotante</span>
-                </div>
-              ) : (
-                transactions.map(tx => (
-                  <div
-                    key={tx.id}
-                    className="p-3 bg-white/2 hover:bg-white/5 rounded-2xl border border-white/5 flex justify-between items-center group relative overflow-hidden transition"
-                  >
-                    <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-white text-sm truncate max-w-[120px]">{tx.descripcion}</span>
-                        {tx.categoria && (
-                          <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[10px] text-brand-accent font-medium uppercase">
-                            {tx.categoria.nombre}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-gray-400">
-                        <span className="font-medium text-gray-500">{tx.metodo_pago}</span>
-                        <span>•</span>
-                        <span>{new Date(tx.fecha_transaccion).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}</span>
+                        <span
+                          className={`text-sm font-extrabold flex-shrink-0 ${
+                            tx.tipo === 'Ingreso' ? 'text-emerald-500' : 'text-rose-500'
+                          }`}
+                        >
+                          {tx.tipo === 'Ingreso' ? '+' : '-'}{formatCurrency(tx.monto)}
+                        </span>
+                        
+                        <button
+                          onClick={() => handleDeleteTransaction(tx.id)}
+                          className="p-1.5 bg-rose-50 hover:bg-rose-500 text-rose-500 hover:text-white rounded-lg opacity-0 group-hover:opacity-100 transition cursor-pointer flex-shrink-0"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
+                  ))
+                )}
+              </div>
+            </div>
 
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-sm font-bold ${
-                          tx.tipo === 'Ingreso' ? 'text-success' : 'text-danger'
-                        }`}
-                      >
-                        {tx.tipo === 'Ingreso' ? '+' : '-'}{formatCurrency(tx.monto)}
+            {/* COLUMN 2: Card Balance & Categories */}
+            <div className="space-y-8 flex flex-col h-auto md:h-[520px]">
+              
+              {/* Card balance (Matches reference image cream colors) */}
+              <div className="bg-[#FFFBF4] rounded-[32px] p-6 md:p-7 border border-[#F5EAD4] flex flex-col justify-between shadow-[0_8px_30px_rgb(245,234,212,0.15)] flex-1 min-h-[220px] card-premium-hover-only">
+                <div>
+                  <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Saldo de Caja</h3>
+                  <div className="mt-4 grid grid-cols-2 gap-4 divide-x divide-amber-200/50">
+                    <div>
+                      <span className="text-[11px] font-bold text-slate-400 block uppercase tracking-wide">Ingresos</span>
+                      <span className="text-lg md:text-xl font-black text-emerald-600 mt-1 block truncate">
+                        {formatCurrency(totalIngresos)}
                       </span>
-                      
-                      <button
-                        onClick={() => handleDeleteTransaction(tx.id)}
-                        className="p-1.5 bg-danger/10 hover:bg-danger text-danger-300 hover:text-white rounded-lg opacity-0 group-hover:opacity-100 transition cursor-pointer"
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                    </div>
+                    <div className="pl-4">
+                      <span className="text-[11px] font-bold text-slate-400 block uppercase tracking-wide">Gastos</span>
+                      <span className="text-lg md:text-xl font-black text-rose-500 mt-1 block truncate">
+                        {formatCurrency(totalGastos)}
+                      </span>
                     </div>
                   </div>
-                ))
-              )}
+                </div>
+
+                <div className="mt-5 p-4 bg-white/70 backdrop-blur-sm rounded-2xl border border-amber-200/30 text-xs">
+                  <span className="font-extrabold text-slate-400 block uppercase tracking-wider text-[9px]">Mensaje de Análisis:</span>
+                  <p className="text-slate-600 mt-1 font-medium leading-relaxed">
+                    {diningOutNote}
+                  </p>
+                </div>
+              </div>
+
+              {/* Categories Donut Chart */}
+              <div className="card-premium rounded-[32px] p-6 md:p-7 flex flex-col justify-between flex-1 min-h-[260px]">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Distribución</h3>
+                  <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Presupuestal</span>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 mt-3">
+                  {/* Interactive SVG Circular Donut Chart */}
+                  <div className="relative w-24 h-24 md:w-28 md:h-28 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                      <circle 
+                        cx="50" 
+                        cy="50" 
+                        r="40" 
+                        fill="none" 
+                        stroke="#f1f5f9" 
+                        strokeWidth="10" 
+                      />
+                      <circle 
+                        cx="50" 
+                        cy="50" 
+                        r="40" 
+                        fill="none" 
+                        stroke="url(#donutGradient)" 
+                        strokeWidth="10" 
+                        strokeDasharray={2 * Math.PI * 40}
+                        strokeDashoffset={2 * Math.PI * 40 * (1 - budgetRatio / 100)}
+                        strokeLinecap="round"
+                      />
+                      <defs>
+                        <linearGradient id="donutGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stopColor="#5f60eb" />
+                          <stop offset="100%" stopColor="#ec4899" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div className="absolute flex flex-col items-center justify-center">
+                      <span className="text-base md:text-lg font-black text-slate-800">{budgetRatio.toFixed(0)}%</span>
+                      <span className="text-[8px] text-slate-400 font-extrabold uppercase mt-0.5 tracking-wider">Límite</span>
+                    </div>
+                  </div>
+
+                  {/* Legend */}
+                  <div className="flex-1 space-y-1.5 max-h-[120px] overflow-y-auto pr-1">
+                    {categories.slice(0, 4).map(c => {
+                      const spend = getCategorySpend(c.id);
+                      const pct = totalSpentInCategories > 0 ? (spend / totalSpentInCategories) * 100 : 0;
+                      return (
+                        <div key={c.id} className="flex items-center justify-between text-[11px]">
+                          <span className="flex items-center gap-1.5 text-slate-600 font-semibold truncate max-w-[90px]">
+                            <span 
+                              className="w-2 h-2 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: getCategoryColor(c.nombre) }}
+                            />
+                            {c.nombre}
+                          </span>
+                          <span className="font-extrabold text-slate-800 flex-shrink-0">{pct.toFixed(0)}%</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="border-t border-slate-50 pt-3 mt-4 flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wide">
+                  {highestSpendCat && highestSpendCat.spend > 0 ? (
+                    <>
+                      <span className="text-slate-400">Principal Gasto:</span>
+                      <span className="text-slate-700">
+                        {highestSpendCat.nombre} ({highestSpendRatio}%)
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-slate-400 text-center w-full">Sin gastos registrados</span>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* COLUMN 3: Account Balance & Spending Analyst */}
+            <div className="space-y-8 flex flex-col h-auto md:h-[520px]">
+              
+              {/* Account Balance (Line Chart) */}
+              <div className="card-premium rounded-[32px] p-6 md:p-7 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Historial de Balance</h3>
+                  <span className="text-[11px] text-slate-400 mt-0.5 block">Trayectoria de egresos semanales</span>
+                </div>
+
+                {/* SVG Line Chart */}
+                <div className="h-32 mt-4 relative w-full">
+                  <svg className="w-full h-full" viewBox="0 0 200 100" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="lineGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="#5f60eb" stopOpacity="0.2" />
+                        <stop offset="100%" stopColor="#5f60eb" stopOpacity="0.0" />
+                      </linearGradient>
+                    </defs>
+                    <line x1="0" y1="25" x2="200" y2="25" stroke="#f1f5f9" strokeWidth="0.5" />
+                    <line x1="0" y1="50" x2="200" y2="50" stroke="#f1f5f9" strokeWidth="0.5" />
+                    <line x1="0" y1="75" x2="200" y2="75" stroke="#f1f5f9" strokeWidth="0.5" />
+
+                    <path 
+                      d="M 0,80 Q 40,30 80,60 T 160,20 T 200,45" 
+                      fill="none" 
+                      stroke="#5f60eb" 
+                      strokeWidth="3" 
+                      strokeLinecap="round"
+                    />
+                    <path 
+                      d="M 0,80 Q 40,30 80,60 T 160,20 T 200,45 L 200,100 L 0,100 Z" 
+                      fill="url(#lineGrad)" 
+                    />
+                  </svg>
+                </div>
+
+                <div className="flex justify-between items-center text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wide">
+                  <span>Ene</span>
+                  <span>Feb</span>
+                  <span>Mar</span>
+                  <span>Abr</span>
+                  <span>May</span>
+                  <span>Jun</span>
+                </div>
+              </div>
+
+              {/* Spending Analyst (Bar Chart) */}
+              <div className="card-premium rounded-[32px] p-6 md:p-7 flex-1 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Analista de Gastos</h3>
+                  <span className="text-[11px] text-slate-400 mt-0.5 block">Consumo porcentual por área</span>
+                </div>
+
+                {/* SVG Bar Chart */}
+                <div className="h-32 mt-4 flex items-end justify-between gap-3 px-1">
+                  {categories.map((c) => {
+                    const spend = getCategorySpend(c.id);
+                    const pct = c.limite_mensual > 0 ? (spend / c.limite_mensual) * 100 : 0;
+                    const barHeight = Math.min(Math.max(pct, 10), 100);
+                    return (
+                      <div key={c.id} className="flex-1 flex flex-col items-center gap-1.5 group cursor-pointer min-w-0">
+                        <div className="w-full bg-slate-50 rounded-xl h-24 flex items-end relative overflow-hidden border border-slate-100">
+                          <div 
+                            className="w-full bg-brand-primary rounded-xl transition-all duration-500 ease-out group-hover:bg-brand-secondary"
+                            style={{ height: `${barHeight}%` }}
+                          />
+                        </div>
+                        <span className="text-[9px] text-slate-400 font-bold uppercase truncate w-full text-center tracking-wide block">
+                          {c.nombre}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          {/* Savings / Remaining Cash Box */}
+          <div className="card-premium rounded-[32px] p-6 md:p-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-4 w-full sm:w-auto">
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-brand-primary/10 rounded-2xl flex items-center justify-center text-brand-primary flex-shrink-0">
+                <Wallet className="w-6 h-6 md:w-7 md:h-7" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Dinero Disponible</span>
+                <span className="text-2xl md:text-3xl font-black text-slate-800 block mt-0.5 truncate">{formatCurrency(balanceNeto)}</span>
+              </div>
+            </div>
+            <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Margen Neto de Ahorro</span>
+              <span className={`text-xs md:text-sm font-bold block mt-1 ${balanceNeto >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                {totalIngresos > 0 
+                  ? `${((balanceNeto / totalIngresos) * 100).toFixed(0)}% del total ingresado`
+                  : 'N/A'
+                }
+              </span>
             </div>
           </div>
 
-        </section>
+        </div>
+
       </main>
 
-      {/* 3. Floating Action Button (FAB) */}
-      <button
-        onClick={openExpenseModal}
-        className="fixed bottom-6 right-6 w-16 h-16 bg-gradient-to-r from-brand-primary to-brand-secondary text-white rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-200 z-30 cursor-pointer glow glow-hover border border-white/10"
-        title="Registrar Gasto Exprés"
-      >
-        <Plus className="w-8 h-8" />
-      </button>
-
-      {/* 4. Form Modal */}
+      {/* 1. NEW TRANSACTION EXPRESS MODAL */}
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md glass rounded-3xl p-6 relative border border-white/10 shadow-2xl animate-float">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-md bg-white rounded-[32px] p-6 md:p-8 border border-slate-100 shadow-2xl relative animate-float">
             
-            {/* Modal Header */}
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                 <Coins className="w-5 h-5 text-brand-primary" />
-                Registro Exprés
+                Registrar Movimiento
               </h3>
               <button
                 onClick={resetForm}
-                className="p-1.5 bg-white/5 hover:bg-white/10 rounded-xl text-gray-400 hover:text-white transition cursor-pointer"
+                className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition cursor-pointer animate-pulse-slow"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleAddTransaction} className="space-y-4">
               
               {/* Type Switcher */}
-              <div className="grid grid-cols-2 gap-2 p-1 bg-white/5 rounded-xl border border-white/5">
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-2xl border border-slate-200/50">
                 <button
                   type="button"
                   onClick={() => setFormTipo('Gasto')}
-                  className={`py-2 text-xs font-bold rounded-lg transition cursor-pointer ${
+                  className={`py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
                     formTipo === 'Gasto'
-                      ? 'bg-danger text-white'
-                      : 'text-gray-400 hover:text-white'
+                      ? 'bg-rose-500 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
                   Gasto Hormiga
@@ -670,10 +1010,10 @@ export default function Dashboard() {
                 <button
                   type="button"
                   onClick={() => setFormTipo('Ingreso')}
-                  className={`py-2 text-xs font-bold rounded-lg transition cursor-pointer ${
+                  className={`py-2 text-xs font-bold rounded-xl transition cursor-pointer ${
                     formTipo === 'Ingreso'
-                      ? 'bg-success text-white'
-                      : 'text-gray-400 hover:text-white'
+                      ? 'bg-emerald-500 text-white shadow-sm'
+                      : 'text-slate-500 hover:text-slate-800'
                   }`}
                 >
                   Ingreso / Salario
@@ -682,7 +1022,7 @@ export default function Dashboard() {
 
               {/* Monto */}
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Monto (COP)</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Monto (COP)</label>
                 <input
                   type="number"
                   ref={montoInputRef}
@@ -691,31 +1031,31 @@ export default function Dashboard() {
                   onChange={(e) => setFormMonto(e.target.value)}
                   placeholder="20000"
                   min="1"
-                  className="w-full px-4 py-3 bg-dark-surface/50 border border-dark-border rounded-xl focus:border-brand-primary focus:outline-none transition text-white text-lg font-bold"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:border-brand-primary focus:bg-white focus:outline-none transition text-slate-800 text-lg font-bold"
                 />
               </div>
 
               {/* Descripción */}
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Descripción</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Descripción</label>
                 <input
                   type="text"
                   required
                   value={formDescripcion}
                   onChange={(e) => setFormDescripcion(e.target.value)}
                   placeholder="Café espresso con pan"
-                  className="w-full px-4 py-3 bg-dark-surface/50 border border-dark-border rounded-xl focus:border-brand-primary focus:outline-none transition text-white text-sm"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:border-brand-primary focus:bg-white focus:outline-none transition text-slate-800 text-sm"
                 />
               </div>
 
-              {/* Categoría (Only for Gasto) */}
+              {/* Categoría */}
               {formTipo === 'Gasto' && (
                 <div>
-                  <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Categoría</label>
+                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Categoría</label>
                   <select
                     value={formCategoriaId}
                     onChange={(e) => setFormCategoriaId(e.target.value)}
-                    className="w-full px-4 py-3 bg-[#151926] border border-dark-border rounded-xl focus:border-brand-primary focus:outline-none transition text-white text-sm"
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:border-brand-primary focus:bg-white focus:outline-none transition text-slate-800 text-sm cursor-pointer"
                   >
                     {categories.map(c => (
                       <option key={c.id} value={c.id}>
@@ -728,17 +1068,17 @@ export default function Dashboard() {
 
               {/* Método de Pago */}
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Método de Pago</label>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Método de Pago</label>
                 <div className="grid grid-cols-2 gap-2">
                   {(['Nequi', 'Tarjeta Crédito', 'Tarjeta Débito', 'Efectivo'] as const).map(mp => (
                     <button
                       key={mp}
                       type="button"
                       onClick={() => setFormMetodoPago(mp)}
-                      className={`py-2.5 px-3 text-xs font-semibold rounded-xl border flex items-center justify-center gap-1.5 cursor-pointer transition ${
+                      className={`py-2.5 px-3 text-xs font-bold rounded-xl border flex items-center justify-center gap-1.5 cursor-pointer transition ${
                         formMetodoPago === mp
-                          ? 'bg-brand-primary border-brand-primary text-white'
-                          : 'bg-dark-surface/50 border-dark-border text-gray-400 hover:text-white'
+                          ? 'bg-brand-primary border-brand-primary text-white shadow-sm'
+                          : 'bg-slate-50 border-slate-200 text-slate-500 hover:text-slate-800'
                       }`}
                     >
                       <CreditCard className="w-3.5 h-3.5" />
@@ -752,15 +1092,71 @@ export default function Dashboard() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 mt-4 bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-bold rounded-xl shadow-lg glow-hover transition cursor-pointer"
+                className="w-full py-3.5 mt-2 bg-brand-primary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 hover:bg-brand-primary/95 transition cursor-pointer text-sm"
               >
-                {formTipo === 'Gasto' ? 'Registrar Gasto (-)' : 'Registrar Ingreso (+)'}
+                {formTipo === 'Gasto' ? 'Registrar Gasto' : 'Registrar Ingreso'}
               </button>
 
             </form>
           </div>
         </div>
       )}
+
+      {/* 2. SETTINGS / CONFIGURACION MODAL */}
+      {showSettingsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-md bg-white rounded-[32px] p-6 md:p-8 border border-slate-100 shadow-2xl relative animate-float">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <Settings className="w-5 h-5 text-brand-primary" />
+                Configuración del Perfil
+              </h3>
+              <button
+                onClick={() => {
+                  setTempName(customName);
+                  setShowSettingsModal(false);
+                }}
+                className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Nombre en Pantalla</label>
+                <input
+                  type="text"
+                  value={tempName}
+                  onChange={(e) => setTempName(e.target.value)}
+                  placeholder="Tu Nombre"
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:border-brand-primary focus:bg-white focus:outline-none transition text-slate-800 font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Correo de Cuenta</label>
+                <input
+                  type="text"
+                  disabled
+                  value={user?.email || 'demo@finanzasapp.com'}
+                  className="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-2xl text-slate-400 cursor-not-allowed text-sm"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  onClick={saveDisplayName}
+                  className="w-full py-3.5 bg-brand-primary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 hover:bg-brand-primary/95 transition cursor-pointer text-sm"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

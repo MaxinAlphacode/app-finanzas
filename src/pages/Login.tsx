@@ -24,7 +24,6 @@ export default function Login() {
         });
         if (error) throw error;
         
-        // Supabase behavior on signup: if email confirmation is enabled, they need to verify.
         if (data.user && data.session === null) {
           setMessage({
             type: 'success',
@@ -61,32 +60,32 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-svh flex items-center justify-center px-4 relative overflow-hidden bg-[#090b11]">
-      {/* Background Neon Glows */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-brand-primary/10 blur-[100px] animate-pulse-slow"></div>
-      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-80 h-80 rounded-full bg-brand-secondary/10 blur-[120px] animate-pulse-slow"></div>
+    <div className="min-h-svh flex items-center justify-center px-4 relative overflow-hidden bg-[#F4F6FA]">
+      {/* Background Soft Glows */}
+      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-brand-primary/5 blur-[100px] animate-pulse-slow"></div>
+      <div className="absolute bottom-1/4 right-1/4 translate-x-1/2 translate-y-1/2 w-80 h-80 rounded-full bg-brand-secondary/5 blur-[120px] animate-pulse-slow"></div>
 
-      <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl relative z-10 animate-float">
+      <div className="w-full max-w-md bg-white p-10 rounded-[32px] border border-slate-100 shadow-[0_10px_35px_rgba(0,0,0,0.03)] relative z-10 animate-float">
         {/* Logo and header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 mb-3">
+          <div className="inline-flex items-center justify-center p-4 rounded-2xl bg-brand-primary/10 border border-brand-primary/20 mb-4">
             <Coins className="w-8 h-8 text-brand-primary" />
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-white mb-2">
-            Finanzas<span className="text-gradient">App</span>
+          <h1 className="text-3xl font-extrabold tracking-tight text-slate-800 mb-2">
+            Finanzas<span className="text-brand-primary">App</span>
           </h1>
-          <p className="text-sm text-gray-400">
-            Control de gastos hormiga y presupuestos inteligentes
+          <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">
+            Control de gastos y presupuestos inteligentes
           </p>
         </div>
 
         {/* Message Banner */}
         {message && (
           <div
-            className={`p-4 rounded-xl border mb-6 text-sm ${
+            className={`p-4 rounded-2xl border mb-6 text-xs font-semibold ${
               message.type === 'error'
-                ? 'bg-danger/10 border-danger/20 text-danger-300'
-                : 'bg-success/10 border-success/20 text-success-300'
+                ? 'bg-rose-50 border-rose-100 text-rose-600'
+                : 'bg-emerald-50 border-emerald-100 text-emerald-600'
             }`}
           >
             {message.text}
@@ -96,11 +95,11 @@ export default function Login() {
         {/* Form */}
         <form onSubmit={handleAuth} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
               Correo Electrónico
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                 <Mail className="w-5 h-5" />
               </span>
               <input
@@ -109,17 +108,17 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu@correo.com"
-                className="w-full pl-10 pr-4 py-3 bg-dark-surface/50 border border-dark-border rounded-xl focus:border-brand-primary focus:outline-none transition text-white placeholder-gray-500"
+                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:border-brand-primary focus:bg-white focus:outline-none transition text-slate-800 text-sm placeholder-slate-400 shadow-sm"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
               Contraseña
             </label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400">
                 <Lock className="w-5 h-5" />
               </span>
               <input
@@ -128,7 +127,7 @@ export default function Login() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-3 bg-dark-surface/50 border border-dark-border rounded-xl focus:border-brand-primary focus:outline-none transition text-white placeholder-gray-500"
+                className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:border-brand-primary focus:bg-white focus:outline-none transition text-slate-800 text-sm placeholder-slate-400 shadow-sm"
               />
             </div>
           </div>
@@ -136,7 +135,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-brand-primary to-brand-secondary text-white font-bold rounded-xl shadow-lg glow-hover flex items-center justify-center gap-2 cursor-pointer transition"
+            className="w-full py-4 bg-brand-primary text-white font-bold rounded-2xl shadow-lg shadow-brand-primary/20 hover:bg-brand-primary/95 transition duration-150 flex items-center justify-center gap-2 cursor-pointer text-sm"
           >
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -153,7 +152,7 @@ export default function Login() {
         <div className="text-center mt-6">
           <button
             onClick={() => setIsSignUp(!isSignUp)}
-            className="text-sm text-brand-accent hover:underline cursor-pointer"
+            className="text-xs font-bold text-brand-primary hover:underline cursor-pointer uppercase tracking-wider"
           >
             {isSignUp
               ? '¿Ya tienes cuenta? Inicia sesión'
