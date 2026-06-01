@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -88,7 +88,7 @@ export default function Reportes() {
         return;
       }
       setUser(user);
-      initializeDisplayName(user.email);
+      initializeDisplayName(user.email || 'jenny.mo@finanzasapp.com');
       await loadDbData(user.id);
     } catch (err) {
       console.error('Failed connection to database, using local', err);
@@ -439,6 +439,14 @@ export default function Reportes() {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F0F2F6] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#F4F6FA] text-slate-800 flex overflow-hidden relative">
       
@@ -499,7 +507,8 @@ export default function Reportes() {
                 <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight truncate flex items-center gap-2">
                   <PieChart className="w-5 h-5 text-brand-primary" />
                   Reportes e Informes
-                  <p className="text-xs text-slate-500 font-medium">Análisis detallado e histórico de movimientos</p>
+                </h1>
+                <p className="text-xs text-slate-500 font-medium">Análisis detallado e histórico de movimientos</p>
               </div>
             </div>
           </div>

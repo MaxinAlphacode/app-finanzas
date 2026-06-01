@@ -6,22 +6,13 @@ import {
   LogOut,
   Plus,
   TrendingUp,
-  TrendingDown,
   Wallet,
-  Sparkles,
-  Utensils,
-  Car,
-  Tv,
-  FileText,
-  HelpCircle,
-  Calendar,
   CreditCard,
   X,
   Trash2,
   AlertCircle,
   Search,
   Settings,
-  User,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -164,7 +155,7 @@ export default function Dashboard() {
         return;
       }
       setUser(user);
-      initializeDisplayName(user.email);
+      initializeDisplayName(user.email || 'jenny.mo@finanzasapp.com');
       await loadDbData(user.id);
     } catch (err) {
       console.error('Error connecting to Supabase. Falling back to local.', err);
