@@ -4,6 +4,7 @@ import { supabase } from './lib/supabaseClient';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Reportes from './pages/Reportes';
+import Presupuestos from './pages/Presupuestos';
 import { Loader2 } from 'lucide-react';
 
 function App() {
@@ -72,6 +73,16 @@ function App() {
           element={
             session || !isSupabaseConfigured ? (
               <Reportes />
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/presupuestos"
+          element={
+            session || !isSupabaseConfigured ? (
+              <Presupuestos />
             ) : (
               <Navigate to="/login" replace />
             )
