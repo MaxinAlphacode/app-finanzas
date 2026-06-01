@@ -519,9 +519,9 @@ export default function Dashboard() {
                   <span className="font-bold text-slate-800 text-lg hover:text-brand-primary transition truncate max-w-[150px] block">
                     {customName}
                   </span>
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                  <ChevronDown className="w-4 h-4 text-slate-500" />
                 </div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1 block">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1 block">
                   {getGreeting()}
                 </span>
               </div>
@@ -648,7 +648,7 @@ export default function Dashboard() {
               <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight truncate">
                 Hola, {customName.split(' ')[0]}
               </h1>
-              <p className="text-xs md:text-sm text-slate-400 font-medium mt-0.5 capitalize">
+              <p className="text-xs md:text-sm text-slate-500 font-medium mt-0.5 capitalize">
                 {getGreeting()}, que tengas un excelente día financiero
               </p>
             </div>
@@ -657,7 +657,7 @@ export default function Dashboard() {
           <div className="flex items-center gap-3 w-full sm:w-auto">
             {/* Search Input */}
             <div className="relative flex-1 sm:w-64 md:w-80 sm:flex-initial">
-              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+              <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-500 pointer-events-none">
                 <Search className="w-4 h-4" />
               </span>
               <input
@@ -687,11 +687,11 @@ export default function Dashboard() {
           {/* Main 3 columns layout: matches reference image grid structure but fully responsive */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            {/* COLUMN 1: Latest Transactions */}
-            <div className="card-premium rounded-[32px] p-6 md:p-8 flex flex-col h-[520px]">
+            {/* COLUMN 1: Latest Transactions (Refactorizada con card-premium) */}
+            <div className="card-premium p-6 md:p-8 flex flex-col h-[520px]">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-slate-800 tracking-tight">Últimos Movimientos</h2>
-                <span className="text-xs font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
+                <span className="text-xs font-bold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
                   {filteredTx.length}
                 </span>
               </div>
@@ -699,10 +699,10 @@ export default function Dashboard() {
               {/* Transactions List */}
               <div className="flex-1 overflow-y-auto space-y-4 pr-1 scrollbar-thin">
                 {filteredTx.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400">
-                    <Coins className="w-12 h-12 stroke-[1.2] mb-3 text-slate-300 animate-bounce" />
+                  <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500">
+                    <Coins className="w-12 h-12 stroke-[1.2] mb-3 text-slate-400 animate-bounce" />
                     <span className="text-sm font-semibold text-slate-500">Sin movimientos</span>
-                    <span className="text-xs text-slate-400 mt-1">Registra un ingreso o gasto</span>
+                    <span className="text-xs text-slate-500 mt-1">Registra un ingreso o gasto</span>
                   </div>
                 ) : (
                   filteredTx.map(tx => (
@@ -726,7 +726,7 @@ export default function Dashboard() {
                             </span>
                           )}
                         </div>
-                        <div className="flex items-center gap-1.5 text-[11px] text-slate-400 font-semibold">
+                        <div className="flex items-center gap-1.5 text-[11px] text-slate-500 font-semibold">
                           <span>{tx.metodo_pago}</span>
                           <span>•</span>
                           <span>{new Date(tx.fecha_transaccion).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}</span>
@@ -759,19 +759,19 @@ export default function Dashboard() {
             {/* COLUMN 2: Card Balance & Categories */}
             <div className="space-y-8 flex flex-col h-auto md:h-[520px]">
               
-              {/* Card balance (Matches reference image cream colors) */}
-              <div className="bg-[#FFFBF4] rounded-[32px] p-6 md:p-7 border border-[#F5EAD4] flex flex-col justify-between shadow-[0_8px_30px_rgb(245,234,212,0.15)] flex-1 min-h-[220px] card-premium-hover-only">
+              {/* Card balance (Matches reference image cream colors, unified border-radius via hover class) */}
+              <div className="bg-[#FFFBF4] p-6 md:p-7 border border-[#F5EAD4] flex flex-col justify-between shadow-[0_8px_30px_rgb(245,234,212,0.15)] flex-1 min-h-[220px] card-premium-hover-only">
                 <div>
                   <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Saldo de Caja</h3>
                   <div className="mt-4 grid grid-cols-2 gap-4 divide-x divide-amber-200/50">
                     <div>
-                      <span className="text-[11px] font-bold text-slate-400 block uppercase tracking-wide">Ingresos</span>
+                      <span className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Ingresos</span>
                       <span className="text-lg md:text-xl font-black text-emerald-600 mt-1 block truncate">
                         {formatCurrency(totalIngresos)}
                       </span>
                     </div>
                     <div className="pl-4">
-                      <span className="text-[11px] font-bold text-slate-400 block uppercase tracking-wide">Gastos</span>
+                      <span className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Gastos</span>
                       <span className="text-lg md:text-xl font-black text-rose-500 mt-1 block truncate">
                         {formatCurrency(totalGastos)}
                       </span>
@@ -780,18 +780,18 @@ export default function Dashboard() {
                 </div>
 
                 <div className="mt-5 p-4 bg-white/70 backdrop-blur-sm rounded-2xl border border-amber-200/30 text-xs">
-                  <span className="font-extrabold text-slate-400 block uppercase tracking-wider text-[9px]">Mensaje de Análisis:</span>
+                  <span className="font-extrabold text-slate-500 block uppercase tracking-wider text-[9px]">Mensaje de Análisis:</span>
                   <p className="text-slate-600 mt-1 font-medium leading-relaxed">
                     {diningOutNote}
                   </p>
                 </div>
               </div>
 
-              {/* Categories Donut Chart */}
-              <div className="card-premium rounded-[32px] p-6 md:p-7 flex flex-col justify-between flex-1 min-h-[260px]">
+              {/* Categories Donut Chart (Refactorizada con card-premium) */}
+              <div className="card-premium p-6 md:p-7 flex flex-col justify-between flex-1 min-h-[260px]">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Distribución</h3>
-                  <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Presupuestal</span>
+                  <span className="text-[11px] text-slate-500 font-bold uppercase tracking-wide">Presupuestal</span>
                 </div>
 
                 <div className="flex items-center justify-between gap-4 mt-3">
@@ -826,7 +826,7 @@ export default function Dashboard() {
                     </svg>
                     <div className="absolute flex flex-col items-center justify-center">
                       <span className="text-base md:text-lg font-black text-slate-800">{budgetRatio.toFixed(0)}%</span>
-                      <span className="text-[8px] text-slate-400 font-extrabold uppercase mt-0.5 tracking-wider">Límite</span>
+                      <span className="text-[8px] text-slate-500 font-extrabold uppercase mt-0.5 tracking-wider">Límite</span>
                     </div>
                   </div>
 
@@ -854,13 +854,13 @@ export default function Dashboard() {
                 <div className="border-t border-slate-50 pt-3 mt-4 flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wide">
                   {highestSpendCat && highestSpendCat.spend > 0 ? (
                     <>
-                      <span className="text-slate-400">Principal Gasto:</span>
+                      <span className="text-slate-500">Principal Gasto:</span>
                       <span className="text-slate-700">
                         {highestSpendCat.nombre} ({highestSpendRatio}%)
                       </span>
                     </>
                   ) : (
-                    <span className="text-slate-400 text-center w-full">Sin gastos registrados</span>
+                    <span className="text-slate-500 text-center w-full">Sin gastos registrados</span>
                   )}
                 </div>
               </div>
@@ -870,11 +870,11 @@ export default function Dashboard() {
             {/* COLUMN 3: Account Balance & Spending Analyst */}
             <div className="space-y-8 flex flex-col h-auto md:h-[520px]">
               
-              {/* Account Balance (Line Chart) */}
-              <div className="card-premium rounded-[32px] p-6 md:p-7 flex-1 flex flex-col justify-between">
+              {/* Account Balance (Line Chart - Refactorizada con card-premium) */}
+              <div className="card-premium p-6 md:p-7 flex-1 flex flex-col justify-between">
                 <div>
                   <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Historial de Balance</h3>
-                  <span className="text-[11px] text-slate-400 mt-0.5 block">Trayectoria de egresos semanales</span>
+                  <span className="text-[11px] text-slate-500 mt-0.5 block">Trayectoria de egresos semanales</span>
                 </div>
 
                 {/* SVG Line Chart */}
@@ -904,7 +904,7 @@ export default function Dashboard() {
                   </svg>
                 </div>
 
-                <div className="flex justify-between items-center text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-wide">
+                <div className="flex justify-between items-center text-[10px] text-slate-500 mt-2 font-bold uppercase tracking-wide">
                   <span>Ene</span>
                   <span>Feb</span>
                   <span>Mar</span>
@@ -914,11 +914,11 @@ export default function Dashboard() {
                 </div>
               </div>
 
-              {/* Spending Analyst (Bar Chart) */}
-              <div className="card-premium rounded-[32px] p-6 md:p-7 flex-1 flex flex-col justify-between">
+              {/* Spending Analyst (Bar Chart - Refactorizada con card-premium) */}
+              <div className="card-premium p-6 md:p-7 flex-1 flex flex-col justify-between">
                 <div>
                   <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Analista de Gastos</h3>
-                  <span className="text-[11px] text-slate-400 mt-0.5 block">Consumo porcentual por área</span>
+                  <span className="text-[11px] text-slate-500 mt-0.5 block">Consumo porcentual por área</span>
                 </div>
 
                 {/* SVG Bar Chart */}
@@ -935,7 +935,7 @@ export default function Dashboard() {
                             style={{ height: `${barHeight}%` }}
                           />
                         </div>
-                        <span className="text-[9px] text-slate-400 font-bold uppercase truncate w-full text-center tracking-wide block">
+                        <span className="text-[9px] text-slate-500 font-bold uppercase truncate w-full text-center tracking-wide block">
                           {c.nombre}
                         </span>
                       </div>
@@ -948,20 +948,20 @@ export default function Dashboard() {
 
           </div>
 
-          {/* Savings / Remaining Cash Box */}
-          <div className="card-premium rounded-[32px] p-6 md:p-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
+          {/* Savings / Remaining Cash Box: HERO CARD CON COLORES INVERTIDOS */}
+          <div className="card-premium-hero p-6 md:p-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div className="flex items-center gap-4 w-full sm:w-auto">
-              <div className="w-12 h-12 md:w-14 md:h-14 bg-brand-primary/10 rounded-2xl flex items-center justify-center text-brand-primary flex-shrink-0">
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white flex-shrink-0">
                 <Wallet className="w-6 h-6 md:w-7 md:h-7" />
               </div>
               <div className="min-w-0">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Dinero Disponible</span>
-                <span className="text-2xl md:text-3xl font-black text-slate-800 block mt-0.5 truncate">{formatCurrency(balanceNeto)}</span>
+                <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">Dinero Disponible</span>
+                <span className="text-2xl md:text-3xl font-black text-white block mt-0.5 truncate">{formatCurrency(balanceNeto)}</span>
               </div>
             </div>
-            <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-slate-100 pt-4 sm:pt-0">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Margen Neto de Ahorro</span>
-              <span className={`text-xs md:text-sm font-bold block mt-1 ${balanceNeto >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+            <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0">
+              <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">Margen Neto de Ahorro</span>
+              <span className={`text-xs md:text-sm font-bold block mt-1 ${balanceNeto >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
                 {totalIngresos > 0 
                   ? `${((balanceNeto / totalIngresos) * 100).toFixed(0)}% del total ingresado`
                   : 'N/A'

@@ -363,9 +363,9 @@ export default function Reportes() {
                   <span className="font-bold text-slate-800 text-lg hover:text-brand-primary transition truncate max-w-[150px] block">
                     {customName}
                   </span>
-                  <ChevronDown className="w-4 h-4 text-slate-400" />
+                  <ChevronDown className="w-4 h-4 text-slate-500" />
                 </div>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-1 block">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1 block">
                   {getGreeting()}
                 </span>
               </div>
@@ -499,8 +499,7 @@ export default function Reportes() {
                 <h1 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight truncate flex items-center gap-2">
                   <PieChart className="w-5 h-5 text-brand-primary" />
                   Reportes e Informes
-                </h1>
-                <p className="text-xs text-slate-400 font-medium">Análisis detallado e histórico de movimientos</p>
+                  <p className="text-xs text-slate-500 font-medium">Análisis detallado e histórico de movimientos</p>
               </div>
             </div>
           </div>
@@ -520,7 +519,7 @@ export default function Reportes() {
         <div className="p-4 md:p-10 space-y-8 flex-1">
           
           {/* Filters Bar */}
-          <div className="card-premium rounded-[24px] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="card-premium p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-center gap-2 text-slate-600">
               <ListFilter className="w-4 h-4 text-brand-primary" />
               <span className="text-xs font-bold uppercase tracking-wider">Filtros de Análisis</span>
@@ -561,9 +560,9 @@ export default function Reportes() {
 
           {/* Stats Cards Row */}
           <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="card-premium p-6 rounded-[24px] flex items-center justify-between">
+            <div className="card-premium p-6 flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Ingresos Seleccionados</span>
+                <span className="text-[11px] text-slate-550 font-bold uppercase tracking-wider">Ingresos Seleccionados</span>
                 <h3 className="text-2xl font-black text-emerald-500 truncate">{formatCurrency(totalIngresos)}</h3>
               </div>
               <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-500 border border-emerald-100 flex-shrink-0">
@@ -571,9 +570,9 @@ export default function Reportes() {
               </div>
             </div>
 
-            <div className="card-premium p-6 rounded-[24px] flex items-center justify-between">
+            <div className="card-premium p-6 flex items-center justify-between">
               <div className="space-y-1">
-                <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Gastos Seleccionados</span>
+                <span className="text-[11px] text-slate-555 font-bold uppercase tracking-wider">Gastos Seleccionados</span>
                 <h3 className="text-2xl font-black text-rose-500 truncate">{formatCurrency(totalGastos)}</h3>
               </div>
               <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500 border border-rose-100 flex-shrink-0">
@@ -581,13 +580,13 @@ export default function Reportes() {
               </div>
             </div>
 
-            <div className="bg-[#FFFBF4] p-6 rounded-[24px] flex items-center justify-between border border-[#F5EAD4] shadow-[0_8px_30px_rgb(245,234,212,0.15)] card-premium-hover-only sm:col-span-2 lg:col-span-1">
+            <div className="bg-[#FFFBF4] p-6 flex items-center justify-between border border-[#F5EAD4] shadow-[0_8px_30px_rgb(245,234,212,0.15)] card-premium-hover-only sm:col-span-2 lg:col-span-1">
               <div className="space-y-1">
-                <span className="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Margen Ahorrado</span>
+                <span className="text-[11px] text-slate-600 font-bold uppercase tracking-wider">Margen Ahorrado</span>
                 <h3 className="text-2xl font-black text-slate-800 truncate">
                   {balance >= 0 ? '+' : ''}
                   {formatCurrency(balance)}
-                  <span className="text-xs font-bold text-slate-400 ml-2">({savingsRate.toFixed(0)}%)</span>
+                  <span className="text-xs font-bold text-slate-500 ml-2">({savingsRate.toFixed(0)}%)</span>
                 </h3>
               </div>
               <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-amber-500 border border-amber-100 flex-shrink-0">
@@ -600,7 +599,7 @@ export default function Reportes() {
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             {/* Category Breakdown Card */}
-            <div className="card-premium p-6 md:p-8 rounded-[32px] space-y-6">
+            <div className="card-premium p-6 md:p-8 space-y-6">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 tracking-tight">
                 <DollarSign className="w-5 h-5 text-brand-primary" />
                 Gastos por Categoría
@@ -613,7 +612,7 @@ export default function Reportes() {
                       <span className="font-semibold text-slate-600">{item.nombre}</span>
                       <div className="text-right">
                         <span className="text-slate-800 font-extrabold">{formatCurrency(item.monto)}</span>
-                        <span className="text-slate-400 font-bold ml-1.5">({item.porcentaje.toFixed(0)}%)</span>
+                        <span className="text-slate-500 font-bold ml-1.5">({item.porcentaje.toFixed(0)}%)</span>
                       </div>
                     </div>
                     <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden p-[1px] border border-slate-200/50">
@@ -629,13 +628,13 @@ export default function Reportes() {
                 ))}
 
                 {categorySummary.reduce((sum, item) => sum + item.monto, 0) === 0 && (
-                  <p className="text-xs text-slate-400 text-center py-6 font-semibold">No hay gastos en este periodo.</p>
+                  <p className="text-xs text-slate-500 text-center py-6 font-semibold">No hay gastos en este periodo.</p>
                 )}
               </div>
             </div>
 
             {/* Payment Method Breakdown Card */}
-            <div className="card-premium p-6 md:p-8 rounded-[32px] space-y-6">
+            <div className="card-premium p-6 md:p-8 space-y-6">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 tracking-tight">
                 <CreditCard className="w-5 h-5 text-brand-secondary" />
                 Métodos de Pago Utilizados
@@ -648,7 +647,7 @@ export default function Reportes() {
                       <span className="font-semibold text-slate-600">{item.nombre}</span>
                       <div className="text-right">
                         <span className="text-slate-800 font-extrabold">{formatCurrency(item.monto)}</span>
-                        <span className="text-slate-400 font-bold ml-1.5">({item.porcentaje.toFixed(0)}%)</span>
+                        <span className="text-slate-500 font-bold ml-1.5">({item.porcentaje.toFixed(0)}%)</span>
                       </div>
                     </div>
                     <div className="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden p-[1px] border border-slate-200/50">
@@ -661,7 +660,7 @@ export default function Reportes() {
                 ))}
 
                 {paymentMethodSummary.reduce((sum, item) => sum + item.monto, 0) === 0 && (
-                  <p className="text-xs text-slate-400 text-center py-6 font-semibold">No hay gastos en este periodo.</p>
+                  <p className="text-xs text-slate-500 text-center py-6 font-semibold">No hay gastos en este periodo.</p>
                 )}
               </div>
             </div>
@@ -669,7 +668,7 @@ export default function Reportes() {
           </section>
 
           {/* Transactions List breakdown */}
-          <section className="card-premium p-6 md:p-8 rounded-[32px]">
+          <section className="card-premium p-6 md:p-8">
             <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2 tracking-tight mb-6">
               <Calendar className="w-5 h-5 text-brand-primary" />
               Listado Histórico ({filteredTransactions.length})
@@ -678,7 +677,7 @@ export default function Reportes() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-slate-100 text-slate-400 font-bold uppercase tracking-wider text-[10px]">
+                  <tr className="border-b border-slate-100 text-slate-500 font-bold uppercase tracking-wider text-[10px]">
                     <th className="py-4 px-5">Fecha</th>
                     <th className="py-4 px-5">Descripción</th>
                     <th className="py-4 px-5">Categoría</th>
@@ -689,7 +688,7 @@ export default function Reportes() {
                 <tbody className="divide-y divide-slate-50">
                   {filteredTransactions.map((tx) => (
                     <tr key={tx.id} className="hover:bg-slate-50/50 transition">
-                      <td className="py-3.5 px-5 text-slate-400 font-medium">
+                      <td className="py-3.5 px-5 text-slate-500 font-medium">
                         {new Date(tx.fecha_transaccion).toLocaleDateString('es-CO', {
                           day: 'numeric',
                           month: 'short',
@@ -711,7 +710,7 @@ export default function Reportes() {
                             {tx.categoria.nombre}
                           </span>
                         ) : (
-                          <span className="text-slate-400 font-medium">-</span>
+                          <span className="text-slate-500 font-medium">-</span>
                         )}
                       </td>
                       <td className="py-3.5 px-5 text-slate-600 font-semibold">{tx.metodo_pago}</td>
@@ -725,7 +724,7 @@ export default function Reportes() {
 
                   {filteredTransactions.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="py-10 text-center text-slate-400 font-semibold">
+                      <td colSpan={5} className="py-10 text-center text-slate-500 font-semibold">
                         Ningún movimiento coincide con los filtros aplicados.
                       </td>
                     </tr>

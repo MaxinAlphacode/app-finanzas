@@ -6,13 +6,14 @@
   --color-brand-secondary: #ec4899;
   --color-brand-accent: #06b6d4;
 
-  --color-dark-bg: #f4f6fa;
+  /* Colder light gray app background */
+  --color-dark-bg: #eef2f6;
   --color-dark-surface: #ffffff;
-  --color-dark-border: rgba(0, 0, 0, 0.06);
+  --color-dark-border: rgba(0, 0, 0, 0.05);
 
-  --color-light-bg: #f4f6fa;
+  --color-light-bg: #eef2f6;
   --color-light-surface: #ffffff;
-  --color-light-border: rgba(0, 0, 0, 0.06);
+  --color-light-border: rgba(0, 0, 0, 0.05);
 
   --color-success: #00a389;
   --color-warning: #ff9f43;
@@ -87,26 +88,46 @@ html, body {
   transition: all 0.3s ease-in-out;
 }
 
+/* Refactorizada: Tarjeta blanca premium con sombra profunda y bordes unificados (24px) */
 .card-premium {
   background-color: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.04);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  box-shadow: 0px 8px 24px rgba(149, 157, 165, 0.15);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-premium:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 35px -5px rgba(95, 96, 235, 0.12), 0 10px 15px -10px rgba(95, 96, 235, 0.08);
+  box-shadow: 0px 16px 32px rgba(149, 157, 165, 0.22);
 }
 
+/* Efectos de hover para tarjetas que no tienen fondo blanco base (ej. crema/pastel) */
 .card-premium-hover-only {
+  border-radius: 24px;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .card-premium-hover-only:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 35px -5px rgba(95, 96, 235, 0.12), 0 10px 15px -10px rgba(95, 96, 235, 0.08);
+  box-shadow: 0px 16px 32px rgba(149, 157, 165, 0.22);
 }
+
+/* NUEVA: Tarjeta Hero Morada invertida para "Dinero Disponible" */
+.card-premium-hero {
+  background: linear-gradient(135deg, #5f60eb 0%, #4a4bd1 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  box-shadow: 0px 8px 24px rgba(95, 96, 235, 0.25);
+  color: #ffffff;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-premium-hero:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 16px 35px rgba(95, 96, 235, 0.35);
+}
+
 
 
 
