@@ -128,6 +128,112 @@ html, body {
   box-shadow: 0px 16px 35px rgba(95, 96, 235, 0.35);
 }
 
+/* ==========================================================================
+   📂 Barra Lateral Inteligente (Hover-Expand)
+   ========================================================================== */
+
+/* Ancho por defecto colapsado con transición suave */
+.sidebar-collapsed-hoverable {
+  width: 5rem !important; /* 80px (w-20) */
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease !important;
+}
+
+/* Expansión flotante en hover */
+.sidebar-collapsed-hoverable:hover {
+  width: 18rem !important; /* 288px (w-72) */
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Transición para el avatar de usuario */
+.sidebar-collapsed-hoverable .sidebar-avatar-container {
+  width: 2.5rem; /* w-10 */
+  height: 2.5rem; /* h-10 */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-collapsed-hoverable:hover .sidebar-avatar-container {
+  width: 4rem; /* w-16 */
+  height: 4rem; /* h-16 */
+}
+
+/* Transición para el texto del perfil (Nombre y Saludo) */
+.sidebar-collapsed-hoverable .sidebar-profile-text {
+  opacity: 0;
+  max-height: 0;
+  visibility: hidden;
+  overflow: hidden;
+  margin-top: 0;
+  transition: opacity 0.2s ease-in-out, max-height 0.3s ease-in-out, margin 0.3s ease-in-out;
+}
+
+.sidebar-collapsed-hoverable:hover .sidebar-profile-text {
+  opacity: 1;
+  max-height: 80px;
+  visibility: visible;
+  margin-top: 1rem;
+}
+
+/* Transición para los textos de navegación */
+.sidebar-collapsed-hoverable .sidebar-label-text {
+  width: 0;
+  opacity: 0;
+  visibility: hidden;
+  white-space: nowrap;
+  transition: opacity 0.15s ease-in-out, width 0.25s cubic-bezier(0.4, 0, 0.2, 1), margin 0.25s ease-in-out;
+}
+
+.sidebar-collapsed-hoverable:hover .sidebar-label-text {
+  width: auto;
+  opacity: 1;
+  visibility: visible;
+  margin-left: 0.875rem; /* gap-3.5 */
+}
+
+/* Ajuste de alineación y padding en los botones de navegación */
+.sidebar-collapsed-hoverable .sidebar-nav-btn {
+  justify-content: center;
+  padding: 0 !important;
+  width: 3rem !important; /* w-12 */
+  height: 3rem !important; /* h-12 */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-collapsed-hoverable:hover .sidebar-nav-btn {
+  justify-content: flex-start;
+  padding: 0.875rem 1.25rem !important; /* py-3.5 px-5 */
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* Ajuste de los botones inferiores de configuración y cierre */
+.sidebar-collapsed-hoverable .sidebar-bottom-btn {
+  justify-content: center;
+  padding: 0 !important;
+  width: 2.5rem !important; /* w-10 */
+  height: 2.5rem !important; /* h-10 */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-collapsed-hoverable:hover .sidebar-bottom-btn {
+  justify-content: flex-start;
+  padding: 0.625rem 1rem !important; /* py-2.5 px-4 */
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* Visibilidad de engranaje de configuración flotante */
+.sidebar-collapsed-hoverable .sidebar-profile-gear {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+.sidebar-collapsed-hoverable:hover .sidebar-profile-gear {
+  opacity: 1;
+  visibility: visible;
+}
+
+
 
 
 

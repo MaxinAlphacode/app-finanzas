@@ -312,7 +312,7 @@ export default function Reportes() {
       <div className="h-full flex flex-col justify-between">
         <div>
           {/* Profile Header */}
-          <div className={`p-6 border-b border-slate-50 flex flex-col items-center text-center relative ${collapsed ? 'py-8' : 'py-8'}`}>
+          <div className="p-6 border-b border-slate-50 flex flex-col items-center text-center relative py-8">
             
             {/* Collapse sidebar button (Only desktop) */}
             {!isMobile && (
@@ -333,7 +333,7 @@ export default function Reportes() {
                 if (isMobile && onClose) onClose();
               }}
             >
-              <div className={`${collapsed ? 'w-10 h-10' : 'w-16 h-16'} rounded-full overflow-hidden border-2 border-brand-primary/20 p-0.5 bg-white hover:border-brand-primary transition-all duration-300`}>
+              <div className={`sidebar-avatar-container ${collapsed ? '' : 'w-16 h-16'} rounded-full overflow-hidden border-2 border-brand-primary/20 p-0.5 bg-white hover:border-brand-primary transition-all duration-300`}>
                 <img 
                   src="/user_avatar.png" 
                   alt="Avatar de Usuario" 
@@ -343,33 +343,29 @@ export default function Reportes() {
                   }}
                 />
               </div>
-              {!collapsed && (
-                <div className="absolute bottom-0 right-0 w-5 h-5 bg-brand-primary text-white rounded-full flex items-center justify-center border border-white shadow">
-                  <Settings className="w-3.5 h-3.5" />
-                </div>
-              )}
+              <div className={`sidebar-profile-gear absolute bottom-0 right-0 w-5 h-5 bg-brand-primary text-white rounded-full flex items-center justify-center border border-white shadow transition-all duration-300 ${collapsed ? '' : 'opacity-100'}`}>
+                <Settings className="w-3.5 h-3.5" />
+              </div>
             </div>
 
-            {/* Name / Greeting (Hide if collapsed) */}
-            {!collapsed && (
-              <div className="animate-fade-in">
-                <div 
-                  className="mt-4 flex items-center justify-center gap-1.5 cursor-pointer" 
-                  onClick={() => {
-                    setShowSettingsModal(true);
-                    if (isMobile && onClose) onClose();
-                  }}
-                >
-                  <span className="font-bold text-slate-800 text-lg hover:text-brand-primary transition truncate max-w-[150px] block">
-                    {customName}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
-                </div>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1 block">
-                  {getGreeting()}
+            {/* Name / Greeting */}
+            <div className={`sidebar-profile-text ${collapsed ? '' : 'mt-4'} flex flex-col items-center text-center`}>
+              <div 
+                className="mt-4 flex items-center justify-center gap-1.5 cursor-pointer" 
+                onClick={() => {
+                  setShowSettingsModal(true);
+                  if (isMobile && onClose) onClose();
+                }}
+              >
+                <span className="font-bold text-slate-800 text-lg hover:text-brand-primary transition truncate max-w-[150px] block">
+                  {customName}
                 </span>
+                <ChevronDown className="w-4 h-4 text-slate-500" />
               </div>
-            )}
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1 block">
+                {getGreeting()}
+              </span>
+            </div>
           </div>
 
           {/* Navigation Links */}
@@ -380,14 +376,12 @@ export default function Reportes() {
                 if (isMobile && onClose) onClose();
               }}
               title="Inicio"
-              className={`w-full flex items-center ${
-                collapsed 
-                  ? 'justify-center w-12 h-12 p-0' 
-                  : 'gap-3.5 px-5 py-3.5'
-              } rounded-2xl text-sm font-semibold transition cursor-pointer text-slate-500 hover:bg-slate-50 hover:text-slate-800`}
+              className={`sidebar-nav-btn w-full flex items-center rounded-2xl text-sm font-semibold transition cursor-pointer text-slate-500 hover:bg-slate-50 hover:text-slate-800 ${
+                collapsed ? '' : 'gap-3.5 px-5 py-3.5'
+              }`}
             >
               <Wallet className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span>Inicio</span>}
+              <span className={collapsed ? 'sidebar-label-text' : ''}>Inicio</span>
             </button>
             
             <button
@@ -396,14 +390,12 @@ export default function Reportes() {
                 if (isMobile && onClose) onClose();
               }}
               title="Estadísticas"
-              className={`w-full flex items-center ${
-                collapsed 
-                  ? 'justify-center w-12 h-12 p-0' 
-                  : 'gap-3.5 px-5 py-3.5'
-              } rounded-2xl text-sm font-semibold transition cursor-pointer bg-brand-primary text-white shadow-lg shadow-brand-primary/10`}
+              className={`sidebar-nav-btn w-full flex items-center rounded-2xl text-sm font-semibold transition cursor-pointer bg-brand-primary text-white shadow-lg shadow-brand-primary/10 ${
+                collapsed ? '' : 'gap-3.5 px-5 py-3.5'
+              }`}
             >
               <TrendingUp className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span>Estadísticas</span>}
+              <span className={collapsed ? 'sidebar-label-text' : ''}>Estadísticas</span>
             </button>
           </nav>
         </div>
@@ -416,23 +408,23 @@ export default function Reportes() {
               if (isMobile && onClose) onClose();
             }}
             title="Configuración de Cuenta"
-            className={`w-full flex items-center ${
-              collapsed ? 'justify-center w-10 h-10 p-0' : 'gap-3 px-4 py-2.5'
-            } text-xs font-bold text-slate-600 hover:text-brand-primary hover:bg-white rounded-xl transition cursor-pointer`}
+            className={`sidebar-bottom-btn w-full flex items-center rounded-xl text-xs font-bold text-slate-600 hover:text-brand-primary hover:bg-white transition cursor-pointer ${
+              collapsed ? '' : 'gap-3 px-4 py-2.5'
+            }`}
           >
             <Settings className="w-4 h-4 flex-shrink-0" />
-            {!collapsed && <span>Configuración</span>}
+            <span className={collapsed ? 'sidebar-label-text' : ''}>Configuración</span>
           </button>
           
           <button
             onClick={handleLogout}
             title="Cerrar Sesión"
-            className={`w-full flex items-center ${
-              collapsed ? 'justify-center w-10 h-10 p-0' : 'gap-3 px-4 py-2.5'
-            } text-xs font-bold text-red-500 hover:text-white hover:bg-red-500 rounded-xl transition cursor-pointer`}
+            className={`sidebar-bottom-btn w-full flex items-center rounded-xl text-xs font-bold text-red-500 hover:text-white hover:bg-red-500 transition cursor-pointer ${
+              collapsed ? '' : 'gap-3 px-4 py-2.5'
+            }`}
           >
             <LogOut className="w-4 h-4 flex-shrink-0" />
-            {!collapsed && <span>Cerrar Sesión</span>}
+            <span className={collapsed ? 'sidebar-label-text' : ''}>Cerrar Sesión</span>
           </button>
         </div>
       </div>
@@ -465,9 +457,15 @@ export default function Reportes() {
         {renderSidebarContent(true, () => setMobileSidebarOpen(false))}
       </aside>
 
-      {/* 3. DESKTOP PERMANENT COLLAPSIBLE SIDEBAR */}
-      <aside className={`hidden md:flex flex-col flex-shrink-0 border-r border-slate-100 bg-white transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.015)] relative ${
+      {/* 3. DESKTOP PERMANENT COLLAPSIBLE SIDEBAR WITH HOVER EXPANSION */}
+      {/* Dummy space-holding aside to prevent layout shifting */}
+      <aside className={`hidden md:block flex-shrink-0 transition-all duration-300 ${
         sidebarCollapsed ? 'w-20' : 'w-72'
+      }`} />
+      
+      {/* Actual floating/fixed aside */}
+      <aside className={`hidden md:flex flex-col border-r border-slate-100 bg-white shadow-[4px_0_24px_rgba(0,0,0,0.015)] absolute inset-y-0 left-0 z-30 ${
+        sidebarCollapsed ? 'sidebar-collapsed-hoverable' : 'w-72'
       }`}>
         {renderSidebarContent(false)}
       </aside>
@@ -589,7 +587,7 @@ export default function Reportes() {
               </div>
             </div>
 
-            <div className="bg-[#FFFBF4] p-6 flex items-center justify-between border border-[#F5EAD4] shadow-[0_8px_30px_rgb(245,234,212,0.15)] card-premium-hover-only sm:col-span-2 lg:col-span-1">
+            <div className="card-premium p-6 flex items-center justify-between sm:col-span-2 lg:col-span-1">
               <div className="space-y-1">
                 <span className="text-[11px] text-slate-600 font-bold uppercase tracking-wider">Margen Ahorrado</span>
                 <h3 className="text-2xl font-black text-slate-800 truncate">
@@ -598,7 +596,7 @@ export default function Reportes() {
                   <span className="text-xs font-bold text-slate-500 ml-2">({savingsRate.toFixed(0)}%)</span>
                 </h3>
               </div>
-              <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-amber-500 border border-amber-100 flex-shrink-0">
+              <div className="w-12 h-12 rounded-xl bg-slate-50 flex items-center justify-center text-amber-500 border border-slate-100 flex-shrink-0">
                 <Percent className="w-5 h-5" />
               </div>
             </div>

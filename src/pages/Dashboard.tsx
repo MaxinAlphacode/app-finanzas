@@ -459,7 +459,7 @@ export default function Dashboard() {
       <div className="h-full flex flex-col justify-between">
         <div>
           {/* Profile Header */}
-          <div className={`p-6 border-b border-slate-50 flex flex-col items-center text-center relative ${collapsed ? 'py-8' : 'py-8'}`}>
+          <div className="p-6 border-b border-slate-50 flex flex-col items-center text-center relative py-8">
             
             {/* Collapse sidebar button (Only desktop) */}
             {!isMobile && (
@@ -480,7 +480,7 @@ export default function Dashboard() {
                 if (isMobile && onClose) onClose();
               }}
             >
-              <div className={`${collapsed ? 'w-10 h-10' : 'w-16 h-16'} rounded-full overflow-hidden border-2 border-brand-primary/20 p-0.5 bg-white hover:border-brand-primary transition-all duration-300`}>
+              <div className={`sidebar-avatar-container ${collapsed ? '' : 'w-16 h-16'} rounded-full overflow-hidden border-2 border-brand-primary/20 p-0.5 bg-white hover:border-brand-primary transition-all duration-300`}>
                 <img 
                   src="/user_avatar.png" 
                   alt="Avatar de Usuario" 
@@ -490,33 +490,29 @@ export default function Dashboard() {
                   }}
                 />
               </div>
-              {!collapsed && (
-                <div className="absolute bottom-0 right-0 w-5 h-5 bg-brand-primary text-white rounded-full flex items-center justify-center border border-white shadow">
-                  <Settings className="w-3.5 h-3.5" />
-                </div>
-              )}
+              <div className={`sidebar-profile-gear absolute bottom-0 right-0 w-5 h-5 bg-brand-primary text-white rounded-full flex items-center justify-center border border-white shadow transition-all duration-300 ${collapsed ? '' : 'opacity-100'}`}>
+                <Settings className="w-3.5 h-3.5" />
+              </div>
             </div>
 
-            {/* Name / Greeting (Hide if collapsed) */}
-            {!collapsed && (
-              <div className="animate-fade-in">
-                <div 
-                  className="mt-4 flex items-center justify-center gap-1.5 cursor-pointer" 
-                  onClick={() => {
-                    setShowSettingsModal(true);
-                    if (isMobile && onClose) onClose();
-                  }}
-                >
-                  <span className="font-bold text-slate-800 text-lg hover:text-brand-primary transition truncate max-w-[150px] block">
-                    {customName}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-slate-500" />
-                </div>
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1 block">
-                  {getGreeting()}
+            {/* Name / Greeting */}
+            <div className={`sidebar-profile-text ${collapsed ? '' : 'mt-4'} flex flex-col items-center text-center`}>
+              <div 
+                className="mt-4 flex items-center justify-center gap-1.5 cursor-pointer" 
+                onClick={() => {
+                  setShowSettingsModal(true);
+                  if (isMobile && onClose) onClose();
+                }}
+              >
+                <span className="font-bold text-slate-800 text-lg hover:text-brand-primary transition truncate max-w-[150px] block">
+                  {customName}
                 </span>
+                <ChevronDown className="w-4 h-4 text-slate-500" />
               </div>
-            )}
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-1 block">
+                {getGreeting()}
+              </span>
+            </div>
           </div>
 
           {/* Navigation Links */}
@@ -527,14 +523,12 @@ export default function Dashboard() {
                 if (isMobile && onClose) onClose();
               }}
               title="Inicio"
-              className={`w-full flex items-center ${
-                collapsed 
-                  ? 'justify-center w-12 h-12 p-0' 
-                  : 'gap-3.5 px-5 py-3.5'
-              } rounded-2xl text-sm font-semibold transition cursor-pointer bg-brand-primary text-white shadow-lg shadow-brand-primary/10`}
+              className={`sidebar-nav-btn w-full flex items-center rounded-2xl text-sm font-semibold transition cursor-pointer bg-brand-primary text-white shadow-lg shadow-brand-primary/10 ${
+                collapsed ? '' : 'gap-3.5 px-5 py-3.5'
+              }`}
             >
               <Wallet className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span>Inicio</span>}
+              <span className={collapsed ? 'sidebar-label-text' : ''}>Inicio</span>
             </button>
             
             <button
@@ -543,14 +537,12 @@ export default function Dashboard() {
                 if (isMobile && onClose) onClose();
               }}
               title="Estadísticas"
-              className={`w-full flex items-center ${
-                collapsed 
-                  ? 'justify-center w-12 h-12 p-0' 
-                  : 'gap-3.5 px-5 py-3.5'
-              } rounded-2xl text-sm font-semibold transition cursor-pointer text-slate-500 hover:bg-slate-50 hover:text-slate-800`}
+              className={`sidebar-nav-btn w-full flex items-center rounded-2xl text-sm font-semibold transition cursor-pointer text-slate-500 hover:bg-slate-50 hover:text-slate-800 ${
+                collapsed ? '' : 'gap-3.5 px-5 py-3.5'
+              }`}
             >
               <TrendingUp className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span>Estadísticas</span>}
+              <span className={collapsed ? 'sidebar-label-text' : ''}>Estadísticas</span>
             </button>
           </nav>
         </div>
@@ -563,23 +555,23 @@ export default function Dashboard() {
               if (isMobile && onClose) onClose();
             }}
             title="Configuración de Cuenta"
-            className={`w-full flex items-center ${
-              collapsed ? 'justify-center w-10 h-10 p-0' : 'gap-3 px-4 py-2.5'
-            } text-xs font-bold text-slate-600 hover:text-brand-primary hover:bg-white rounded-xl transition cursor-pointer`}
+            className={`sidebar-bottom-btn w-full flex items-center rounded-xl text-xs font-bold text-slate-600 hover:text-brand-primary hover:bg-white transition cursor-pointer ${
+              collapsed ? '' : 'gap-3 px-4 py-2.5'
+            }`}
           >
             <Settings className="w-4 h-4 flex-shrink-0" />
-            {!collapsed && <span>Configuración</span>}
+            <span className={collapsed ? 'sidebar-label-text' : ''}>Configuración</span>
           </button>
           
           <button
             onClick={handleLogout}
             title="Cerrar Sesión"
-            className={`w-full flex items-center ${
-              collapsed ? 'justify-center w-10 h-10 p-0' : 'gap-3 px-4 py-2.5'
-            } text-xs font-bold text-red-500 hover:text-white hover:bg-red-500 rounded-xl transition cursor-pointer`}
+            className={`sidebar-bottom-btn w-full flex items-center rounded-xl text-xs font-bold text-red-500 hover:text-white hover:bg-red-500 transition cursor-pointer ${
+              collapsed ? '' : 'gap-3 px-4 py-2.5'
+            }`}
           >
             <LogOut className="w-4 h-4 flex-shrink-0" />
-            {!collapsed && <span>Cerrar Sesión</span>}
+            <span className={collapsed ? 'sidebar-label-text' : ''}>Cerrar Sesión</span>
           </button>
         </div>
       </div>
@@ -604,9 +596,15 @@ export default function Dashboard() {
         {renderSidebarContent(true, () => setMobileSidebarOpen(false))}
       </aside>
 
-      {/* 3. DESKTOP PERMANENT COLLAPSIBLE SIDEBAR */}
-      <aside className={`hidden md:flex flex-col flex-shrink-0 border-r border-slate-100 bg-white transition-all duration-300 shadow-[4px_0_24px_rgba(0,0,0,0.015)] relative ${
+      {/* 3. DESKTOP PERMANENT COLLAPSIBLE SIDEBAR WITH HOVER EXPANSION */}
+      {/* Dummy space-holding aside to prevent layout shifting */}
+      <aside className={`hidden md:block flex-shrink-0 transition-all duration-300 ${
         sidebarCollapsed ? 'w-20' : 'w-72'
+      }`} />
+      
+      {/* Actual floating/fixed aside */}
+      <aside className={`hidden md:flex flex-col border-r border-slate-100 bg-white shadow-[4px_0_24px_rgba(0,0,0,0.015)] absolute inset-y-0 left-0 z-30 ${
+        sidebarCollapsed ? 'sidebar-collapsed-hoverable' : 'w-72'
       }`}>
         {renderSidebarContent(false)}
       </aside>
@@ -675,6 +673,28 @@ export default function Dashboard() {
         {/* CONTENT AREA GRID */}
         <div className="p-4 md:p-10 space-y-8 flex-1">
           
+          {/* Savings / Remaining Cash Box: HERO CARD CON COLORES INVERTIDOS (Mapeada arriba para visibilidad mobile/desktop inmediata) */}
+          <div className="card-premium-hero p-6 md:p-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div className="flex items-center gap-4 w-full sm:w-auto">
+              <div className="w-12 h-12 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white flex-shrink-0">
+                <Wallet className="w-6 h-6 md:w-7 md:h-7" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">Dinero Disponible</span>
+                <span className="text-2xl md:text-3xl font-black text-white block mt-0.5 truncate">{formatCurrency(balanceNeto)}</span>
+              </div>
+            </div>
+            <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0">
+              <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">Margen Neto de Ahorro</span>
+              <span className={`text-xs md:text-sm font-bold block mt-1 ${balanceNeto >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
+                {totalIngresos > 0 
+                  ? `${((balanceNeto / totalIngresos) * 100).toFixed(0)}% del total ingresado`
+                  : 'N/A'
+                }
+              </span>
+            </div>
+          </div>
+
           {/* Main 3 columns layout: matches reference image grid structure but fully responsive */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
@@ -750,14 +770,14 @@ export default function Dashboard() {
             {/* COLUMN 2: Card Balance & Categories */}
             <div className="space-y-8 flex flex-col h-auto md:h-[520px]">
               
-              {/* Card balance (Matches reference image cream colors, unified border-radius via hover class) */}
-              <div className="bg-[#FFFBF4] p-6 md:p-7 border border-[#F5EAD4] flex flex-col justify-between shadow-[0_8px_30px_rgb(245,234,212,0.15)] flex-1 min-h-[220px] card-premium-hover-only">
+              {/* Card balance (Opción A: Unificada a blanco card-premium y nota con fondo gris tenue) */}
+              <div className="card-premium p-6 md:p-7 flex flex-col justify-between flex-1 min-h-[220px]">
                 <div>
-                  <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Saldo de Caja</h3>
-                  <div className="mt-4 grid grid-cols-2 gap-4 divide-x divide-amber-200/50">
+                  <h3 className="text-xs font-extrabold text-slate-550 tracking-wider uppercase">Saldo de Caja</h3>
+                  <div className="mt-4 grid grid-cols-2 gap-4 divide-x divide-slate-100">
                     <div>
                       <span className="text-[11px] font-bold text-slate-500 block uppercase tracking-wide">Ingresos</span>
-                      <span className="text-lg md:text-xl font-black text-emerald-600 mt-1 block truncate">
+                      <span className="text-lg md:text-xl font-black text-emerald-500 mt-1 block truncate">
                         {formatCurrency(totalIngresos)}
                       </span>
                     </div>
@@ -770,8 +790,9 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <div className="mt-5 p-4 bg-white/70 backdrop-blur-sm rounded-2xl border border-amber-200/30 text-xs">
-                  <span className="font-extrabold text-slate-500 block uppercase tracking-wider text-[9px]">Mensaje de Análisis:</span>
+                {/* Recuadro de mensaje analítico unificado en fondo gris claro tenue #F8FAFC */}
+                <div className="mt-5 p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs">
+                  <span className="font-extrabold text-slate-650 block uppercase tracking-wider text-[9px]">Mensaje de Análisis:</span>
                   <p className="text-slate-600 mt-1 font-medium leading-relaxed">
                     {diningOutNote}
                   </p>
@@ -782,7 +803,7 @@ export default function Dashboard() {
               <div className="card-premium p-6 md:p-7 flex flex-col justify-between flex-1 min-h-[260px]">
                 <div className="flex justify-between items-center">
                   <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Distribución</h3>
-                  <span className="text-[11px] text-slate-500 font-bold uppercase tracking-wide">Presupuestal</span>
+                  <span className="text-[11px] text-slate-550 font-bold uppercase tracking-wide">Presupuestal</span>
                 </div>
 
                 <div className="flex items-center justify-between gap-4 mt-3">
@@ -864,7 +885,7 @@ export default function Dashboard() {
               {/* Account Balance (Line Chart - Refactorizada con card-premium) */}
               <div className="card-premium p-6 md:p-7 flex-1 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Historial de Balance</h3>
+                  <h3 className="text-xs font-extrabold text-slate-550 tracking-wider uppercase">Historial de Balance</h3>
                   <span className="text-[11px] text-slate-500 mt-0.5 block">Trayectoria de egresos semanales</span>
                 </div>
 
@@ -908,8 +929,8 @@ export default function Dashboard() {
               {/* Spending Analyst (Bar Chart - Refactorizada con card-premium) */}
               <div className="card-premium p-6 md:p-7 flex-1 flex flex-col justify-between">
                 <div>
-                  <h3 className="text-xs font-extrabold text-slate-500 tracking-wider uppercase">Analista de Gastos</h3>
-                  <span className="text-[11px] text-slate-500 mt-0.5 block">Consumo porcentual por área</span>
+                  <h3 className="text-xs font-extrabold text-slate-550 tracking-wider uppercase">Analista de Gastos</h3>
+                  <span className="text-[11px] text-slate-550 mt-0.5 block">Consumo porcentual por área</span>
                 </div>
 
                 {/* SVG Bar Chart */}
@@ -938,29 +959,6 @@ export default function Dashboard() {
             </div>
 
           </div>
-
-          {/* Savings / Remaining Cash Box: HERO CARD CON COLORES INVERTIDOS */}
-          <div className="card-premium-hero p-6 md:p-8 flex flex-col sm:flex-row gap-4 items-center justify-between">
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-              <div className="w-12 h-12 md:w-14 md:h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-white flex-shrink-0">
-                <Wallet className="w-6 h-6 md:w-7 md:h-7" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">Dinero Disponible</span>
-                <span className="text-2xl md:text-3xl font-black text-white block mt-0.5 truncate">{formatCurrency(balanceNeto)}</span>
-              </div>
-            </div>
-            <div className="text-left sm:text-right w-full sm:w-auto border-t sm:border-t-0 border-white/10 pt-4 sm:pt-0">
-              <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider block">Margen Neto de Ahorro</span>
-              <span className={`text-xs md:text-sm font-bold block mt-1 ${balanceNeto >= 0 ? 'text-emerald-300' : 'text-rose-300'}`}>
-                {totalIngresos > 0 
-                  ? `${((balanceNeto / totalIngresos) * 100).toFixed(0)}% del total ingresado`
-                  : 'N/A'
-                }
-              </span>
-            </div>
-          </div>
-
         </div>
 
       </main>
